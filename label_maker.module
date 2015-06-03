@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * @file
+ * Custom module to perform misc tasks.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function label_maker_menu() {
+  $items['admin/structure/label_maker'] = array(
+    'title' => 'Label maker',
+    'file' => 'label_maker.admin.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('label_maker_admin'),
+    'access arguments' => array('administer site configuration'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function label_maker_entity_info_alter(&$entity_info) {
+  $vget = variable_get('label_maker', array());
+  if (count($vget)) {
+    foreach ($vget as $type => $info) {
+      if (isset($entity_info[$type]) && isset($info['enable']) && $info['enable']) {
+        $entity_info[$type]['label callback'] = 'label_maker_label';
+      }
+    }
+  }
+}
+
+/**
+ * Label callback.
+ */
+function label_maker_label($entity) {
+  $output = 'unset label';
+  $vget = variable_get('label_maker', array());
+  
+  $type = $entity->entityType();
+  $bundle = $entity->bundle();
+  
+  if (isset($vget[$type][$bundle])) {
+    $output = token_replace($vget[$type][$bundle], array($type => $entity));
+  }
+
+  return $output;
+}

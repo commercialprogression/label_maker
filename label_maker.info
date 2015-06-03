@@ -1,0 +1,4 @@
+name = Label maker
+description = Use text and tokens for entity label callbacks
+core = 7.x
+dependencies[] = token
