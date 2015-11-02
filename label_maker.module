@@ -39,9 +39,34 @@ function label_maker_entity_info_alter(&$entity_info) {
 function label_maker_label($entity) {
   $output = 'unset label';
   $vget = variable_get('label_maker', array());
-  
-  $type = $entity->entityType();
-  $bundle = $entity->bundle();
+
+  // Get the entity's type.
+  if (method_exists($entity, 'entityType')){
+    $type = $entity->entityType();
+  }
+  else {
+    if (isset($entity->fid)) {
+      $type = 'file';
+    }
+    else {
+      $type = 'entity';
+    }
+    $type = 'foo';
+  }
+
+  // Get the entity's bundle.
+  if (method_exists($entity, 'bundle')) {
+    $bundle = $entity->bundle();
+  }
+  else {
+    if (isset($entity->fid) && isset($entity->type)) {
+      $bundle = $entity->type;
+    }
+    else {
+      $bundle = 'standard';
+    }
+  }
+
   
   if (isset($vget[$type][$bundle])) {
     $output = token_replace($vget[$type][$bundle], array($type => $entity));
